@@ -1,10 +1,8 @@
 package br.com.alura.literalura.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
+import java.time.Year;
 
 @Entity
 public class Livro {
@@ -12,14 +10,22 @@ public class Livro {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String titulo;
-    private String autor;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "autor_id")
+    private Autor autor;
+
     private String idioma;
+
     private Integer anoNascimentoAutor;
+
     private Integer anoFalecimentoAutor;
 
-    // Getters e Setters
+    private Double numeroDownloads;
 
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -36,11 +42,11 @@ public class Livro {
         this.titulo = titulo;
     }
 
-    public String getAutor() {
+    public Autor getAutor() {
         return autor;
     }
 
-    public void setAutor(String autor) {
+    public void setAutor(Autor autor) {
         this.autor = autor;
     }
 
@@ -68,15 +74,40 @@ public class Livro {
         this.anoFalecimentoAutor = anoFalecimentoAutor;
     }
 
+    public Double getNumeroDownloads() {
+        return numeroDownloads;
+    }
+
+    public void setNumeroDownloads(Double numeroDownloads) {
+        this.numeroDownloads = numeroDownloads;
+    }
+
+    // Construtores
+    public Livro() {}
+
+    public Livro(LivroDTO livroDTO) {
+        this.titulo = livroDTO.titulo();
+        Autor autor = new Autor(livroDTO.authors().get(0));
+        this.autor = autor;
+        this.idioma = livroDTO.idioma().get(0);
+        this.numeroDownloads = livroDTO.numeroDownload();
+    }
+
+    public Livro(Long idApi, String titulo, Autor autor, String idioma, Double numeroDownload) {
+        this.titulo = titulo;
+        this.autor = autor;
+        this.idioma = idioma;
+        this.numeroDownloads = numeroDownload;
+    }
+
     @Override
     public String toString() {
         return "Livro{" +
                 "id=" + id +
                 ", titulo='" + titulo + '\'' +
-                ", autor='" + autor + '\'' +
+                ", autor=" + autor.getAutor() + // to avoid recursive call of toString()
                 ", idioma='" + idioma + '\'' +
-                ", anoNascimentoAutor=" + anoNascimentoAutor +
-                ", anoFalecimentoAutor=" + anoFalecimentoAutor +
+                ", numeroDownloads=" + numeroDownloads +
                 '}';
     }
 }

@@ -2,6 +2,11 @@ package br.com.alura.literalura.model;
 
 import jakarta.persistence.*;
 
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Entity
 @Table(name = "autores")
 public class Autor {
@@ -9,9 +14,18 @@ public class Autor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nome;
-    private Integer nascAno;
-    private Integer mortAno;
+
+    @Column(nullable = false)
+    private String autor;
+
+    @Column(name = "ano_nascimento")
+    private Year anoNascimento;
+
+    @Column(name = "ano_falecimento")
+    private Year anoFalecimento;
+
+    @OneToMany(mappedBy = "autor", fetch = FetchType.EAGER)
+    private List<Livro> livros = new ArrayList<>();
 
     // Getters e setters
     public Long getId() {
@@ -23,26 +37,60 @@ public class Autor {
     }
 
     public String getAutor() {
-        return nome;
+        return autor;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setAutor(String autor) {
+        this.autor = autor;
     }
 
-    public Integer getNascAno() {
-        return nascAno;
+    public Year getAnoNascimento() {
+        return anoNascimento;
     }
 
-    public void setNascAno(Integer nascAno) {
-        this.nascAno = nascAno;
+    public void setAnoNascimento(Year anoNascimento) {
+        this.anoNascimento = anoNascimento;
     }
 
-    public Integer getMortAno() {
-        return mortAno;
+    public Year getAnoFalecimento() {
+        return anoFalecimento;
     }
 
-    public void setMortAno(Integer mortAno) {
-        this.mortAno = mortAno;
+    public void setAnoFalecimento(Year anoFalecimento) {
+        this.anoFalecimento = anoFalecimento;
+    }
+
+    public List<Livro> getLivros() {
+        return livros;
+    }
+
+    public void setLivros(List<Livro> livros) {
+        this.livros = livros;
+    }
+
+    // Construtores
+    public Autor() {}
+
+    public Autor(AutorDTO autorDTO) {
+        this.autor = autorDTO.autor();
+        this.anoNascimento = Year.of(autorDTO.anoNascimento());
+        this.anoFalecimento = Year.of(autorDTO.anoFalecimento());
+    }
+
+    public Autor(String autor, Year anoNascimento, Year anoFalecimento) {
+        this.autor = autor;
+        this.anoNascimento = anoNascimento;
+        this.anoFalecimento = anoFalecimento;
+    }
+
+    @Override
+    public String toString() {
+        return "Autor{" +
+                "id=" + id +
+                ", autor='" + autor + '\'' +
+                ", anoNascimento=" + anoNascimento +
+                ", anoFalecimento=" + anoFalecimento +
+                ", livros=" + livros.stream().map(Livro::getTitulo).collect(Collectors.toList()) +
+                '}';
     }
 }
