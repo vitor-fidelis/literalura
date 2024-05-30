@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ConverteDados {
+public class ConverteDados implements IConverteDados{
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public <T> List<T> obterDados(String json, Class<T> tClass) {
+    public <T> T obterDados(String json, Class<T> tClass) {
         CollectionType lista = objectMapper.getTypeFactory()
                 .constructCollectionType(List.class, tClass);
         try {

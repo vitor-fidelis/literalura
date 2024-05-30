@@ -83,7 +83,7 @@ public class Principal {
             System.out.println("Digite o título do livro: ");
             String titulo = leitura.nextLine();
             var baseURL = "https://gutendex.com/books?search=";
-            String endereco = baseURL + titulo.replace(" ", "%20");
+            String endereco = baseURL + titulo.replace(" ", "+");
 
             System.out.println("URL da API: " + endereco); // Log da URL da API
 
@@ -103,7 +103,7 @@ public class Principal {
             String jsonLivro = converteDados.extraiObjetoJson(jsonResponse, "results");
 
             // Converter o JSON para uma lista de LivroDTO
-            List<LivroDTO> livrosDTO = converteDados.obterDados(jsonLivro, LivroDTO.class);
+            List<LivroDTO> livrosDTO = converteDados.obterDados(jsonLivro, LivroDTO.classe);
 
             if (!livrosDTO.isEmpty()) {
                 List<Livro> livros = livrosDTO.stream().map(Livro::new).collect(Collectors.toList());
