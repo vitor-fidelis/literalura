@@ -84,14 +84,25 @@ public class Principal {
             String titulo = leitura.nextLine();
             var baseURL = "https://gutendex.com/books?search=";
             String endereco = baseURL + titulo.replace(" ", "%20");
-            System.out.println(endereco);
+
+            System.out.println("URL da API: " + endereco); // Log da URL da API
+
+            // Fazer a chamada para a API
             String jsonResponse = consumoAPI.obterDados(endereco);
 
-            System.out.println("JSON retornado pela API:");
-            System.out.println(jsonResponse);
+            // Log da resposta da API
+            System.out.println("Resposta da API: " + jsonResponse);
 
+            // Verificar se a resposta está vazia
+            if (jsonResponse == null || jsonResponse.isEmpty()) {
+                System.out.println("Resposta da API está vazia."); // Log de aviso
+                return;
+            }
+
+            // Extrair o objeto JSON relevante
             String jsonLivro = converteDados.extraiObjetoJson(jsonResponse, "results");
 
+            // Converter o JSON para uma lista de LivroDTO
             List<LivroDTO> livrosDTO = converteDados.obterDados(jsonLivro, LivroDTO.class);
 
             if (!livrosDTO.isEmpty()) {
@@ -99,12 +110,14 @@ public class Principal {
                 salvarLivros(livros);
                 System.out.println("Livros salvos com sucesso!");
             } else {
-                System.out.println("Não foi possível encontrar livro buscado");
+                System.out.println("Não foi possível encontrar o livro buscado.");
             }
         } catch (Exception e) {
             logger.error("Erro ao buscar livros: {}", e.getMessage());
+            e.printStackTrace(); // Imprimir rastreamento de pilha para debug
         }
     }
+
 
     private void listarLivrosRegistrados() {
         List<Livro> livros = livroRepository.findAll();
