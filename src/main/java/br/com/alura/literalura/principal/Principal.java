@@ -19,16 +19,21 @@ public class Principal {
 
     private static final Logger logger = LoggerFactory.getLogger(Principal.class);
 
-    @Autowired
     private LivroRepository livroRepository;
-
-    @Autowired
     private ConsumoAPI consumoAPI;
+    private ConverteDados converteDados;
+    private final Scanner leitura = new Scanner(System.in);
 
     @Autowired
-    private ConverteDados converteDados;
+    public Principal(LivroRepository livroRepository,
+                     ConsumoAPI consumoAPI,
+                     ConverteDados converteDados)
+    {
+     this.livroRepository = livroRepository;
+     this.consumoAPI = consumoAPI;
+     this.converteDados = converteDados;
+    }
 
-    private final Scanner leitura = new Scanner(System.in);
 
     public void executar() {
         boolean running = true;
@@ -79,11 +84,15 @@ public class Principal {
             String titulo = leitura.nextLine();
             var baseURL = "https://gutendex.com/books?search=";
             String endereco = baseURL + titulo.replace(" ", "%20");
-
+            System.out.println(endereco);
             String jsonResponse = consumoAPI.obterDados(endereco);
+
+            System.out.println("JSON retornado pela API:");
+            System.out.println(jsonResponse);
+
             String jsonLivro = converteDados.extraiObjetoJson(jsonResponse, "results");
 
-            List<LivroDTO> livrosDTO = converteDados.obterLista(jsonLivro, LivroDTO.class);
+            List<LivroDTO> livrosDTO = converteDados.obterDados(jsonLivro, LivroDTO.class);
 
             if (!livrosDTO.isEmpty()) {
                 List<Livro> livros = livrosDTO.stream().map(Livro::new).collect(Collectors.toList());

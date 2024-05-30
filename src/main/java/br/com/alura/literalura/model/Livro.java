@@ -2,8 +2,6 @@ package br.com.alura.literalura.model;
 
 import jakarta.persistence.*;
 
-import java.time.Year;
-
 @Entity
 public class Livro {
 

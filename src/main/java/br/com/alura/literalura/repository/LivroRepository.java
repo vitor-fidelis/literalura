@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface LivroRepository extends JpaRepository<Livro, Long> {
 
-    @Query("SELECT a.autor FROM Livro l JOIN l.autor a")
+    @Query("SELECT DISTINCT a.autor FROM Livro l JOIN l.autor a")
     List<String> findAllAuthors();
 
     @Query("SELECT a FROM Autor a WHERE a.anoNascimento <= :ano AND (a.anoFalecimento IS NULL OR a.anoFalecimento >= :ano)")
