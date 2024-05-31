@@ -1,6 +1,7 @@
 package br.com.alura.literalura.principal;
 
 import br.com.alura.literalura.model.Autor;
+import br.com.alura.literalura.model.AutorDTO;
 import br.com.alura.literalura.model.Livro;
 import br.com.alura.literalura.model.LivroDTO;
 import br.com.alura.literalura.repository.LivroRepository;
@@ -17,8 +18,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class Principal {
-
-    private static final Logger logger = LoggerFactory.getLogger(Principal.class);
 
     @Autowired
     private LivroRepository livroRepository;
@@ -61,19 +60,19 @@ public class Principal {
 
     private void exibirMenu() {
         System.out.println("""
-                ===========================================================
-                                       LITERALURA
-                      Uma aplicação para você que gosta de livros !
-                      Escolha um número no menu abaixo:
-                -----------------------------------------------------------
-                                          Menu
-                           1- Buscar livros pelo título
-                           2- Listar livros registrados
-                           3- Listar autores registrados
-                           4- Listar autores vivos em um determinado ano
-                           5- Listar livros em um determinado idioma
-                           6- Sair
-                """);
+            ===========================================================
+                                LITERALURA
+                   Uma aplicação para você que gosta de livros !
+                   Escolha um número no menu abaixo:
+            -----------------------------------------------------------
+                                 Menu
+                       1- Buscar livros pelo título
+                       2- Listar livros registrados
+                       3- Listar autores registrados
+                       4- Listar autores vivos em um determinado ano
+                       5- Listar livros em um determinado idioma
+                       6- Sair
+            """);
     }
 
     private void salvarLivros(List<Livro> livros) {
@@ -81,10 +80,11 @@ public class Principal {
     }
 
     private void buscarLivrosPeloTitulo() {
+        String baseURL = "https://gutendex.com/books?search=";
+
         try {
             System.out.println("Digite o título do livro: ");
             String titulo = leitura.nextLine();
-            var baseURL = "https://gutendex.com/books?search=";
             String endereco = baseURL + titulo.replace(" ", "%20");
             System.out.println("URL da API: " + endereco);
 
@@ -96,13 +96,21 @@ public class Principal {
                 return;
             }
 
-            String jsonLivro = converteDados.extraiObjetoJson(jsonResponse, "results");
-            System.out.println("JSON extraído: " + jsonLivro);
-
-            // Função modificada para lidar com listas diretamente
-            List<LivroDTO> livrosDTO = converteDados.obterDados(jsonLivro, List.class);
+            List<LivroDTO> livrosDTO = converteDados.obterListaDeLivros(jsonResponse);
 
             if (!livrosDTO.isEmpty()) {
+                for (LivroDTO livro : livrosDTO) {
+                    System.out.println("Título: " + livro.titulo());
+                    System.out.println("Autor(es): ");
+                    for (AutorDTO autor : livro.autores()) {
+                        System.out.println("  - " + autor.nome());
+                    }
+                    System.out.println("Idioma(s): " + String.join(", ", livro.idioma()));
+                    System.out.println("Downloads: " + livro.numeroDownload());
+                    System.out.println("----------------------------------------");
+                }
+
+                // Salvando os livros encontrados
                 List<Livro> livros = livrosDTO.stream().map(Livro::new).collect(Collectors.toList());
                 salvarLivros(livros);
                 System.out.println("Livros salvos com sucesso!");
@@ -110,7 +118,7 @@ public class Principal {
                 System.out.println("Não foi possível encontrar o livro buscado.");
             }
         } catch (Exception e) {
-            logger.error("Erro ao buscar livros: {}", e.getMessage());
+            System.out.println("Erro ao buscar livros: {}" + e.getMessage());
         }
     }
 

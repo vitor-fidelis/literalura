@@ -72,7 +72,7 @@ public class Autor {
     public Autor() {}
 
     public Autor(AutorDTO autorDTO) {
-        this.autor = autorDTO.autor();
+        this.autor = autorDTO.nome();
         this.anoNascimento = Year.of(autorDTO.anoNascimento());
         this.anoFalecimento = Year.of(autorDTO.anoFalecimento());
     }
