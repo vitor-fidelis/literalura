@@ -3,15 +3,16 @@ package br.com.alura.literalura.principal;
 import br.com.alura.literalura.model.Autor;
 import br.com.alura.literalura.model.Livro;
 import br.com.alura.literalura.model.LivroDTO;
-import br.com.alura.literalura.service.ConsumoAPI;
 import br.com.alura.literalura.repository.LivroRepository;
+import br.com.alura.literalura.service.ConsumoAPI;
 import br.com.alura.literalura.service.ConverteDados;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 @Component
@@ -19,21 +20,22 @@ public class Principal {
 
     private static final Logger logger = LoggerFactory.getLogger(Principal.class);
 
+    @Autowired
     private LivroRepository livroRepository;
-    private ConsumoAPI consumoAPI;
-    private ConverteDados converteDados;
-    private final Scanner leitura = new Scanner(System.in);
 
     @Autowired
-    public Principal(LivroRepository livroRepository,
-                     ConsumoAPI consumoAPI,
-                     ConverteDados converteDados)
-    {
-     this.livroRepository = livroRepository;
-     this.consumoAPI = consumoAPI;
-     this.converteDados = converteDados;
-    }
+    private ConsumoAPI consumoAPI;
 
+    @Autowired
+    private ConverteDados converteDados;
+
+    private final Scanner leitura = new Scanner(System.in);
+
+    public Principal(LivroRepository livroRepository, ConsumoAPI consumoAPI, ConverteDados converteDados) {
+        this.livroRepository = livroRepository;
+        this.consumoAPI = consumoAPI;
+        this.converteDados = converteDados;
+    }
 
     public void executar() {
         boolean running = true;
@@ -83,27 +85,22 @@ public class Principal {
             System.out.println("Digite o título do livro: ");
             String titulo = leitura.nextLine();
             var baseURL = "https://gutendex.com/books?search=";
-            String endereco = baseURL + titulo.replace(" ", "+");
+            String endereco = baseURL + titulo.replace(" ", "%20");
+            System.out.println("URL da API: " + endereco);
 
-            System.out.println("URL da API: " + endereco); // Log da URL da API
-
-            // Fazer a chamada para a API
             String jsonResponse = consumoAPI.obterDados(endereco);
-
-            // Log da resposta da API
             System.out.println("Resposta da API: " + jsonResponse);
 
-            // Verificar se a resposta está vazia
-            if (jsonResponse == null || jsonResponse.isEmpty()) {
-                System.out.println("Resposta da API está vazia."); // Log de aviso
+            if (jsonResponse.isEmpty()) {
+                System.out.println("Resposta da API está vazia.");
                 return;
             }
 
-            // Extrair o objeto JSON relevante
             String jsonLivro = converteDados.extraiObjetoJson(jsonResponse, "results");
+            System.out.println("JSON extraído: " + jsonLivro);
 
-            // Converter o JSON para uma lista de LivroDTO
-            List<LivroDTO> livrosDTO = converteDados.obterDados(jsonLivro, LivroDTO.classe);
+            // Função modificada para lidar com listas diretamente
+            List<LivroDTO> livrosDTO = converteDados.obterDados(jsonLivro, List.class);
 
             if (!livrosDTO.isEmpty()) {
                 List<Livro> livros = livrosDTO.stream().map(Livro::new).collect(Collectors.toList());
@@ -114,10 +111,8 @@ public class Principal {
             }
         } catch (Exception e) {
             logger.error("Erro ao buscar livros: {}", e.getMessage());
-            e.printStackTrace(); // Imprimir rastreamento de pilha para debug
         }
     }
-
 
     private void listarLivrosRegistrados() {
         List<Livro> livros = livroRepository.findAll();
@@ -133,21 +128,10 @@ public class Principal {
         if (livros.isEmpty()) {
             System.out.println("Nenhum autor registrado.");
         } else {
-            Set<String> autores = new HashSet<>();
-            for (Livro livro : livros) {
-                String autor = livro.getAutor().getAutor();
-                if (autor != null && !autor.isEmpty()) {
-                    autores.add(autor);
-                }
-            }
-            if (autores.isEmpty()) {
-                System.out.println("Nenhum autor registrado.");
-            } else {
-                System.out.println("Autores registrados:");
-                for (String autor : autores) {
-                    System.out.println(autor);
-                }
-            }
+            livros.stream()
+                    .map(Livro::getAutor)
+                    .distinct()
+                    .forEach(autor -> System.out.println(autor.getAutor()));
         }
     }
 
@@ -159,11 +143,10 @@ public class Principal {
         if (autores.isEmpty()) {
             System.out.println("Nenhum autor vivo encontrado.");
         } else {
-            for (Autor autor : autores) {
-                System.out.println(autor.getAutor());
-            }
+            autores.forEach(autor -> System.out.println(autor.getAutor()));
         }
     }
+
     private void listarLivrosPorIdioma() {
         System.out.println("Digite o idioma: ");
         String idioma = leitura.nextLine();

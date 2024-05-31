@@ -3,16 +3,17 @@ package br.com.alura.literalura.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table
 public class Livro {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String titulo;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "autor_id")
     private Autor autor;
 
     private String idioma;
@@ -81,11 +82,12 @@ public class Livro {
     }
 
     // Construtores
-    public Livro() {}
+    public Livro() {
+    }
 
     public Livro(LivroDTO livroDTO) {
         this.titulo = livroDTO.titulo();
-        Autor autor = new Autor(livroDTO.authors().get(0));
+        Autor autor = new Autor(livroDTO.autores().get(0));
         this.autor = autor;
         this.idioma = livroDTO.idioma().get(0);
         this.numeroDownloads = livroDTO.numeroDownload();

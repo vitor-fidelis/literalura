@@ -3,34 +3,27 @@ package br.com.alura.literalura.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
-public class ConverteDados implements IConverteDados{
+public class ConverteDados {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public <T> T obterDados(String json, Class<T> tClass) {
-        CollectionType lista = objectMapper.getTypeFactory()
-                .constructCollectionType(List.class, tClass);
+    public <T> T obterDados(String json, Class<T> classe) {
         try {
-            return objectMapper.readValue(json, lista);
+            return objectMapper.readValue(json, classe);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
 
-
-    public String extraiObjetoJson(String json, String objeto){
+    public String extraiObjetoJson(String json, String objeto) {
         try {
             JsonNode jsonCompleto = objectMapper.readTree(json);
-            JsonNode jsonLivro = jsonCompleto.path("results");
+            JsonNode jsonLivro = jsonCompleto.path(objeto);
             return jsonLivro.toString();
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
 }
-
