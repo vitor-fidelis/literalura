@@ -72,7 +72,7 @@ public class Autor {
     public Autor() {}
 
     public Autor(AutorDTO autorDTO) {
-        this.autor = autorDTO.nome();
+        this.autor = autorDTO.autor();
         this.anoNascimento = Year.of(autorDTO.anoNascimento());
         this.anoFalecimento = Year.of(autorDTO.anoFalecimento());
     }
@@ -85,12 +85,11 @@ public class Autor {
 
     @Override
     public String toString() {
-        return "Autor{" +
-                "id=" + id +
-                ", autor='" + autor + '\'' +
+        return ", autor='" + autor + '\'' +
                 ", anoNascimento=" + anoNascimento +
                 ", anoFalecimento=" + anoFalecimento +
                 ", livros=" + livros.stream().map(Livro::getTitulo).collect(Collectors.toList()) +
                 '}';
     }
+
 }

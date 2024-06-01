@@ -13,6 +13,10 @@ import java.util.List;
 public class ConverteDados implements IConverteDados {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
+    }
+
     public <T> T obterDados(String json, Class<T> classe) {
         try {
             return objectMapper.readValue(json, classe);
@@ -29,14 +33,5 @@ public class ConverteDados implements IConverteDados {
             throw new RuntimeException(e);
         }
     }
-
-    public String extraiObjetoJson(String json, String objeto) {
-        try {
-            JsonNode jsonCompleto = objectMapper.readTree(json);
-            JsonNode jsonLivro = jsonCompleto.path(objeto);
-            return jsonLivro.toString();
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
+

@@ -105,7 +105,7 @@ public class Livro {
         return "Livro{" +
                 "id=" + id +
                 ", titulo='" + titulo + '\'' +
-                ", nome=" + autor.getAutor() + // to avoid recursive call of toString()
+                ", autor=" + autor.getAutor() + // to avoid recursive call of toString()
                 ", idioma='" + idioma + '\'' +
                 ", numeroDownloads=" + numeroDownloads +
                 '}';

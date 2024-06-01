@@ -7,11 +7,11 @@ import br.com.alura.literalura.model.LivroDTO;
 import br.com.alura.literalura.repository.LivroRepository;
 import br.com.alura.literalura.service.ConsumoAPI;
 import br.com.alura.literalura.service.ConverteDados;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.time.Year;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -48,8 +48,10 @@ public class Principal {
                 case 2 -> listarLivrosRegistrados();
                 case 3 -> listarAutoresRegistrados();
                 case 4 -> listarAutoresVivos();
-                case 5 -> listarLivrosPorIdioma();
-                case 6 -> {
+                case 5 -> listarAutoresVivosRefinado();
+                case 6 -> listarAutoresPorAnoDeMorte();
+                case 7 -> listarLivrosPorIdioma();
+                case 0 -> {
                     System.out.println("Encerrando a LiterAlura!");
                     running = false;
                 }
@@ -70,8 +72,10 @@ public class Principal {
                        2- Listar livros registrados
                        3- Listar autores registrados
                        4- Listar autores vivos em um determinado ano
-                       5- Listar livros em um determinado idioma
-                       6- Sair
+                       5- Listar autores nascidos em determinado ano
+                       6- Listar autores por ano de sua morte
+                       7- Listar livros em um determinado idioma
+                       0- Sair
             """);
     }
 
@@ -96,18 +100,22 @@ public class Principal {
                 return;
             }
 
-            List<LivroDTO> livrosDTO = converteDados.obterListaDeLivros(jsonResponse);
+            // Extrai a lista de livros da chave "results"
+            JsonNode rootNode = converteDados.getObjectMapper().readTree(jsonResponse);
+            JsonNode resultsNode = rootNode.path("results");
+
+            if (resultsNode.isEmpty()) {
+                System.out.println("Não foi possível encontrar o livro buscado.");
+                return;
+            }
+
+            List<LivroDTO> livrosDTO = converteDados.getObjectMapper()
+                    .readerForListOf(LivroDTO.class)
+                    .readValue(resultsNode);
 
             if (!livrosDTO.isEmpty()) {
                 for (LivroDTO livro : livrosDTO) {
-                    System.out.println("Título: " + livro.titulo());
-                    System.out.println("Autor(es): ");
-                    for (AutorDTO autor : livro.autores()) {
-                        System.out.println("  - " + autor.nome());
-                    }
-                    System.out.println("Idioma(s): " + String.join(", ", livro.idioma()));
-                    System.out.println("Downloads: " + livro.numeroDownload());
-                    System.out.println("----------------------------------------");
+                    System.out.println(livro);
                 }
 
                 // Salvando os livros encontrados
@@ -118,9 +126,10 @@ public class Principal {
                 System.out.println("Não foi possível encontrar o livro buscado.");
             }
         } catch (Exception e) {
-            System.out.println("Erro ao buscar livros: {}" + e.getMessage());
+            System.out.println("Erro ao buscar livros: " + e.getMessage());
         }
     }
+
 
     private void listarLivrosRegistrados() {
         List<Livro> livros = livroRepository.findAll();
@@ -145,24 +154,100 @@ public class Principal {
 
     private void listarAutoresVivos() {
         System.out.println("Digite o ano: ");
-        int ano = leitura.nextInt();
+        Integer ano = leitura.nextInt();
         leitura.nextLine();
-        List<Autor> autores = livroRepository.findAutoresVivos(ano);
+
+        Year year = Year.of(ano);
+
+        List<Autor> autores = livroRepository.findAutoresVivos(year);
         if (autores.isEmpty()) {
             System.out.println("Nenhum autor vivo encontrado.");
         } else {
-            autores.forEach(autor -> System.out.println(autor.getAutor()));
+            System.out.println("Lista de autores vivos no ano de " + ano + ":\n");
+
+            autores.forEach(autor -> {
+                String nomeAutor = autor.getAutor();
+                String anoNascimento = autor.getAnoNascimento().toString();
+                String anoFalecimento = autor.getAnoFalecimento().toString();
+                System.out.println(nomeAutor + " (" + anoNascimento + " - " + anoFalecimento + ")");
+            });
         }
     }
 
+    private void listarAutoresVivosRefinado() {
+        System.out.println("Digite o ano: ");
+        Integer ano = leitura.nextInt();
+        leitura.nextLine();
+
+        Year year = Year.of(ano);
+
+        List<Autor> autores = livroRepository.findAutoresVivosRefinado(year);
+        if (autores.isEmpty()) {
+            System.out.println("Nenhum autor vivo encontrado.");
+        } else {
+            System.out.println("Lista de autores nascidos no ano de " + ano + ":\n");
+
+            autores.forEach(autor -> {
+                String nomeAutor = autor.getAutor();
+                String anoNascimento = autor.getAnoNascimento().toString();
+                String anoFalecimento = autor.getAnoFalecimento().toString();
+                System.out.println(nomeAutor + " (" + anoNascimento + " - " + anoFalecimento + ")");
+            });
+        }
+    }
+
+    private void listarAutoresPorAnoDeMorte() {
+        System.out.println("Digite o ano: ");
+        Integer ano = leitura.nextInt();
+        leitura.nextLine();
+
+        Year year = Year.of(ano);
+
+        List<Autor> autores = livroRepository.findAutoresPorAnoDeMorte(year);
+        if (autores.isEmpty()) {
+            System.out.println("Nenhum autor vivo encontrado.");
+        } else {
+
+            System.out.println("Lista de autores que morreram no ano de " + ano + ":\n");
+
+
+            autores.forEach(autor -> {
+                String nomeAutor = autor.getAutor();
+                String anoNascimento = autor.getAnoNascimento().toString();
+                String anoFalecimento = autor.getAnoFalecimento().toString();
+                System.out.println(nomeAutor + " (" + anoNascimento + " - " + anoFalecimento + ")");
+            });
+        }
+    }
+
+
     private void listarLivrosPorIdioma() {
-        System.out.println("Digite o idioma: ");
+        System.out.println("""
+            Digite o idioma pretendido:
+            Inglês (en)
+            Português (pt)
+            Espanhol (es)
+            Francês (fr)
+            Alemão (de)
+            """);
         String idioma = leitura.nextLine();
+
         List<Livro> livros = livroRepository.findByIdioma(idioma);
         if (livros.isEmpty()) {
             System.out.println("Nenhum livro encontrado no idioma especificado.");
         } else {
-            livros.forEach(System.out::println);
+            livros.forEach(livro -> {
+                String titulo = livro.getTitulo();
+                String autor = livro.getAutor().getAutor();
+                String idiomaLivro = livro.getIdioma();
+
+                System.out.println("Título: " + titulo);
+                System.out.println("Autor: " + autor);
+                System.out.println("Idioma: " + idiomaLivro);
+                System.out.println("----------------------------------------");
+            });
         }
     }
+
+
 }
