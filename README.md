@@ -1,4 +1,6 @@
 # Literalura
+![Logo da Empresa](imagens/4975968.png)
+
 
 Literalura é uma aplicação Java/Spring Boot para amantes de livros. Esta aplicação permite buscar livros, listar livros registrados, listar autores, e muitas outras funcionalidades relacionadas à leitura e organização de livros.
 
@@ -122,5 +124,18 @@ Este projeto está licenciado sob a MIT License. Veja o arquivo `LICENSE` para m
 Se você tiver alguma dúvida ou sugestão, sinta-se à vontade para entrar em contato.
 
 ---
+
+## Imagens da aplicação em funcionamento
+
+
+
+
+![img](https://github.com/vitor-fidelis/literalura/blob/94bde8826b6be879fd89b3866bd793f065572c9d/imagens/imagens/Captura%20de%20ecr%C3%A3%202024-06-03%20155941.png)
+![img](https://github.com/vitor-fidelis/literalura/blob/94bde8826b6be879fd89b3866bd793f065572c9d/imagens/imagens/Captura%20de%20ecr%C3%A3%202024-06-01%20195448.png)
+![img](https://github.com/vitor-fidelis/literalura/blob/94bde8826b6be879fd89b3866bd793f065572c9d/imagens/imagens/Captura%20de%20ecr%C3%A3%202024-06-01%20195525.png)
+![img](https://github.com/vitor-fidelis/literalura/blob/main/imagens/imagens/Captura%20de%20ecr%C3%A3%202024-06-01%20195615.png)
+![img](https://github.com/vitor-fidelis/literalura/blob/94bde8826b6be879fd89b3866bd793f065572c9d/imagens/imagens/Captura%20de%20ecr%C3%A3%202024-06-03%20174736.png)
+
+
 
 Espero que você aproveite esta aplicação e que ela seja útil para suas necessidades literárias!
