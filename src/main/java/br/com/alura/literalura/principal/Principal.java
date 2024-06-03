@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Year;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -83,6 +85,7 @@ public class Principal {
         livros.forEach(livroRepository::save);
     }
 
+
     private void buscarLivrosPeloTitulo() {
         String baseURL = "https://gutendex.com/books?search=";
 
@@ -109,26 +112,46 @@ public class Principal {
                 return;
             }
 
+            // Converte os resultados da API em objetos LivroDTO
             List<LivroDTO> livrosDTO = converteDados.getObjectMapper()
                     .readerForListOf(LivroDTO.class)
                     .readValue(resultsNode);
 
-            if (!livrosDTO.isEmpty()) {
-                for (LivroDTO livro : livrosDTO) {
-                    System.out.println(livro);
+            // Remove as duplicatas existentes no banco de dados
+            List<Livro> livrosExistentes = livroRepository.findByTitulo(titulo);
+            if (!livrosExistentes.isEmpty()) {
+                System.out.println("Removendo livros duplicados já existentes no banco de dados...");
+                for (Livro livroExistente : livrosExistentes) {
+                    livrosDTO.removeIf(livroDTO -> livroExistente.getTitulo().equals(livroDTO.titulo()));
                 }
+            }
 
-                // Salvando os livros encontrados
-                List<Livro> livros = livrosDTO.stream().map(Livro::new).collect(Collectors.toList());
-                salvarLivros(livros);
+            // Salva os novos livros no banco de dados
+            if (!livrosDTO.isEmpty()) {
+                System.out.println("Salvando novos livros encontrados...");
+                List<Livro> novosLivros = livrosDTO.stream().map(Livro::new).collect(Collectors.toList());
+                salvarLivros(novosLivros);
                 System.out.println("Livros salvos com sucesso!");
             } else {
-                System.out.println("Não foi possível encontrar o livro buscado.");
+                System.out.println("Todos os livros já estão registrados no banco de dados.");
+            }
+
+            // Exibe os livros encontrados
+            if (!livrosDTO.isEmpty()) {
+                System.out.println("Livros encontrados:");
+                Set<String> titulosExibidos = new HashSet<>(); // Para controlar títulos já exibidos
+                for (LivroDTO livro : livrosDTO) {
+                    if (!titulosExibidos.contains(livro.titulo())) {
+                        System.out.println(livro);
+                        titulosExibidos.add(livro.titulo());
+                    }
+                }
             }
         } catch (Exception e) {
             System.out.println("Erro ao buscar livros: " + e.getMessage());
         }
     }
+
 
 
     private void listarLivrosRegistrados() {
@@ -166,10 +189,12 @@ public class Principal {
             System.out.println("Lista de autores vivos no ano de " + ano + ":\n");
 
             autores.forEach(autor -> {
-                String nomeAutor = autor.getAutor();
-                String anoNascimento = autor.getAnoNascimento().toString();
-                String anoFalecimento = autor.getAnoFalecimento().toString();
-                System.out.println(nomeAutor + " (" + anoNascimento + " - " + anoFalecimento + ")");
+                if(Autor.possuiAno(autor.getAnoNascimento()) && Autor.possuiAno(autor.getAnoFalecimento())){
+                    String nomeAutor = autor.getAutor();
+                    String anoNascimento = autor.getAnoNascimento().toString();
+                    String anoFalecimento = autor.getAnoFalecimento().toString();
+                    System.out.println(nomeAutor + " (" + anoNascimento + " - " + anoFalecimento + ")");
+                }
             });
         }
     }
@@ -188,10 +213,13 @@ public class Principal {
             System.out.println("Lista de autores nascidos no ano de " + ano + ":\n");
 
             autores.forEach(autor -> {
-                String nomeAutor = autor.getAutor();
-                String anoNascimento = autor.getAnoNascimento().toString();
-                String anoFalecimento = autor.getAnoFalecimento().toString();
-                System.out.println(nomeAutor + " (" + anoNascimento + " - " + anoFalecimento + ")");
+                if(Autor.possuiAno(autor.getAnoNascimento()) && Autor.possuiAno(autor.getAnoFalecimento())){
+                    String nomeAutor = autor.getAutor();
+                    String anoNascimento = autor.getAnoNascimento().toString();
+                    String anoFalecimento = autor.getAnoFalecimento().toString();
+                    System.out.println(nomeAutor + " (" + anoNascimento + " - " + anoFalecimento + ")");
+
+                }
             });
         }
     }
@@ -212,10 +240,12 @@ public class Principal {
 
 
             autores.forEach(autor -> {
-                String nomeAutor = autor.getAutor();
-                String anoNascimento = autor.getAnoNascimento().toString();
-                String anoFalecimento = autor.getAnoFalecimento().toString();
-                System.out.println(nomeAutor + " (" + anoNascimento + " - " + anoFalecimento + ")");
+                if (Autor.possuiAno(autor.getAnoNascimento()) && Autor.possuiAno(autor.getAnoFalecimento())){
+                    String nomeAutor = autor.getAutor();
+                    String anoNascimento = autor.getAnoNascimento().toString();
+                    String anoFalecimento = autor.getAnoFalecimento().toString();
+                    System.out.println(nomeAutor + " (" + anoNascimento + " - " + anoFalecimento + ")");
+                }
             });
         }
     }

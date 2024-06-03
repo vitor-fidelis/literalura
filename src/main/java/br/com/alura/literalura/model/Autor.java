@@ -71,11 +71,16 @@ public class Autor {
     // Construtores
     public Autor() {}
 
+    public static boolean possuiAno(Year ano) {
+        return ano != null && !ano.equals(Year.of(0));
+    }
+
     public Autor(AutorDTO autorDTO) {
         this.autor = autorDTO.autor();
-        this.anoNascimento = Year.of(autorDTO.anoNascimento());
-        this.anoFalecimento = Year.of(autorDTO.anoFalecimento());
+        this.anoNascimento = autorDTO.anoNascimento() != null ? Year.of(autorDTO.anoNascimento()) : null;
+        this.anoFalecimento = autorDTO.anoFalecimento() != null ? Year.of(autorDTO.anoFalecimento()) : null;
     }
+
 
     public Autor(String autor, Year anoNascimento, Year anoFalecimento) {
         this.autor = autor;
@@ -85,11 +90,9 @@ public class Autor {
 
     @Override
     public String toString() {
-        return ", autor='" + autor + '\'' +
-                ", anoNascimento=" + anoNascimento +
-                ", anoFalecimento=" + anoFalecimento +
-                ", livros=" + livros.stream().map(Livro::getTitulo).collect(Collectors.toList()) +
-                '}';
-    }
+        String anoNascimentoStr = anoNascimento != null ? anoNascimento.toString() : "Desconhecido";
+        String anoFalecimentoStr = anoFalecimento != null ? anoFalecimento.toString() : "Desconhecido";
 
+        return "Autor: " + autor + " (nascido em " + anoNascimentoStr + ", falecido em " + anoFalecimentoStr + ")";
+    }
 }

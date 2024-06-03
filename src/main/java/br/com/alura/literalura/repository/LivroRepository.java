@@ -11,6 +11,9 @@ import java.util.List;
 
 public interface LivroRepository extends JpaRepository<Livro, Long> {
 
+    @Query("SELECT l FROM Livro l WHERE LOWER(l.titulo) = LOWER(:titulo)")
+    List<Livro> findByTitulo(String titulo);
+
     @Query("SELECT a FROM Autor a WHERE a.anoNascimento <= :ano AND (a.anoFalecimento IS NULL OR a.anoFalecimento >= :ano)")
     List<Autor> findAutoresVivos(@Param("ano") Year ano);
 

@@ -82,8 +82,7 @@ public class Livro {
     }
 
     // Construtores
-    public Livro() {
-    }
+    public Livro() {}
 
     public Livro(LivroDTO livroDTO) {
         this.titulo = livroDTO.titulo();
@@ -102,12 +101,10 @@ public class Livro {
 
     @Override
     public String toString() {
-        return "Livro{" +
-                "id=" + id +
-                ", titulo='" + titulo + '\'' +
-                ", autor=" + autor.getAutor() + // to avoid recursive call of toString()
-                ", idioma='" + idioma + '\'' +
-                ", numeroDownloads=" + numeroDownloads +
-                '}';
+        return "Título: " + titulo + "\n" +
+                "Autor: " + autor + "\n" +
+                "Idioma: " + idioma + "\n" +
+                "Downloads: " + numeroDownloads + "\n" +
+                "----------------------------------------";
     }
 }
